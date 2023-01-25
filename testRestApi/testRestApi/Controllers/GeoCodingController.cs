@@ -25,6 +25,18 @@ namespace testRestApi.Controllers
         [HttpGet(Name = "GetGeoData")]
         public async Task<GeoDataResponse?> GetGeoDataAsync(string сountry, string city, string street)
         {
+            if(string.IsNullOrEmpty(сountry))
+            {
+                throw new ArgumentNullException("Поле {0} не должно быть пустым", сountry);
+            }
+            if (string.IsNullOrEmpty(city))
+            {
+                throw new ArgumentNullException("Поле {0} не должно быть пустым", city);
+            }
+            if (string.IsNullOrEmpty(street))
+            {
+                throw new ArgumentNullException("Поле {0} не должно быть пустым", street);
+            }
 
             var link = string.Format(
             _iConfiguration["OpenstreetmapAPI:Url"] + "country={0}&city={1}&street={2}" + "&format=json&limit=2",
@@ -45,9 +57,9 @@ namespace testRestApi.Controllers
                     if(response.StatusCode != HttpStatusCode.OK) 
                     {
                         _logger.LogError("Не удалось выполнить запрос, код сервера : {0}", response.StatusCode);
-                        return null;
+                        throw new Exception("Не удалось выполнить запрос, код сервера :" + response.StatusCode);
                     }
-                    if (parsedResponse != null)
+                    if (parsedResponse != null && parsedResponse.Count != 0)
                     {
                         _logger.LogInformation("Координаты найдены, широта: {0}, долгота: {1}", parsedResponse[0].lat, parsedResponse[0].lon);
                         return new GeoDataResponse { Latitude = parsedResponse[0].lat, Longitude = parsedResponse[0].lon, Name = parsedResponse[0].display_name };
@@ -55,7 +67,7 @@ namespace testRestApi.Controllers
                     else
                     {
                         _logger.LogInformation("Координаты не найдены, страна: {0}, город: {1}, улица: {2}", сountry, city, street);
-                        return null;
+                        throw new Exception("Координаты не найдены, страна:" + сountry + ", город: " + city + ", улица:" + street);
                     }
                 }
                 catch(Exception ex)
