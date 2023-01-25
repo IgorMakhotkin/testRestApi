@@ -49,6 +49,7 @@ namespace testRestApi.Controllers
                     }
                     if (parsedResponse != null)
                     {
+                        _logger.LogInformation("Координаты найдены, широта: {0}, долгота: {1}", parsedResponse[0].lat, parsedResponse[0].lon);
                         return new GeoDataResponse { Latitude = parsedResponse[0].lat, Longitude = parsedResponse[0].lon, Name = parsedResponse[0].display_name };
                     }
                     else
